@@ -16,24 +16,27 @@ spec:
     - cat
     tty: true
   - name: docker
-    image: docker
+    image: docker:24-dind
+    securityContext:
+      privileged: true
+    env:
+    - name: DOCKER_TLS_CERTDIR
+      value: ""
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
+  - name: docker-client
+    image: docker:24-cli
     command:
     - cat
     tty: true
-    securityContext:
-      privileged: true
-    volumeMounts:
-    - mountPath: /var/run/docker.sock
-      name: docker-sock
+    env:
+    - name: DOCKER_HOST
+      value: tcp://localhost:2375
   - name: kubectl
     image: lachlanevenson/k8s-kubectl:v1.17.2
     command:
     - cat
     tty: true
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
 """
         }
     }
@@ -51,7 +54,7 @@ spec:
         }
         stage('Build image') {
             steps {
-                container('docker') {
+                container('docker-client') {
                     sh "docker build -t localhost:4000/pythontest:latest ."
                     sh "docker push localhost:4000/pythontest:latest"
                 }
