@@ -24,6 +24,8 @@ spec:
       value: ""
     - name: DOCKER_HOST
       value: tcp://localhost:2375
+    args:
+    - --insecure-registry=192.168.0.144:4000
   - name: docker-client
     image: docker:24-cli
     command:
@@ -55,8 +57,8 @@ spec:
         stage('Build image') {
             steps {
                 container('docker-client') {
-                    sh "docker build -t localhost:4000/pythontest:latest ."
-                    sh "docker push localhost:4000/pythontest:latest"
+                    sh "docker build -t 192.168.0.144:4000/pythontest:latest ."
+                    sh "docker push 192.168.0.144:4000/pythontest:latest"
                 }
             }
         }
